@@ -1,0 +1,24 @@
+0018.18eb.6824 - router fa0/0
+0018.18eb.6825 - router fa0/1
+0019.55cd.ef98 - router switch module fa0/0/0
+0019.55cd.ef99 - router switch module fa0/0/1
+0019.55cd.ef9a - router switch module fa0/0/2
+0019.55cd.ef9b - router switch module fa0/0/3
+
+001d.7123.def0 - root-bridge - bvi1
+001d.7123.def0 - root-bridge - dot11radio0
+001d.7127.df00 - root-bridge - dot11radio1
+001d.a1cc.2c16 - root-bridge - fa0
+
+001a.3064.8560 - shop bridge - bvi1
+001a.3064.8560 - shop bridge - dot11radio0
+001a.3068.8560 - shop bridge - dot11radio1
+001a.6ccb.70d0 - shop bridge - fa0
+
+d81d.720e.7feb 10.0.5.10 - iPhone
+b8f6.b11c.3019 10.0.5.11 - macbook
+e8b1.fc56.128d 10.0.5.12  - t440s
+a039.f707.7011 10.0.5.13 - tine-phone
+3468.95aa.a125 10.0.5.14 - tine-laptop
+70de.e24f.b9c9 10.0.5.15 - iPad
+70ec.e406.6d17 10.0.5.16 - kait-phone

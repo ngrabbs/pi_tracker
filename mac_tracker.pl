@@ -42,19 +42,21 @@ while(<SYSLOG>) {
 		## check database to see if we already have an entry like this
 		$db_check = check_database($mac, $start_ap, $start_time, $dbh);
 		if($db_check) {
-			print "$mac $start_ap $start_time alread exists, woops\n";
+			print "$mac $start_ap $start_time alread exists, skipping\n";
 		} else {
-			# see if a session exists
+			## see if a session exists
 			my $last_session_id = get_last_session_id($mac, $start_ap, $start_time, $dbh);
-			insert_row($mac, $last_session_id+1, $start_ap, $start_time, $dbh);
+			if(!check_existing_session($mac, $last_session_id, $start_ap, $start_time, $dbh)) {
+				insert_row($mac, $last_session_id+1, $start_ap, $start_time, $dbh);
+			}
 		}
 
 	}
-#
-#	if($_ =~ m/DOT11-6-DISASSOC/) {
-#		my @disassoc = split(/\s+/, $_);
+
+	if($_ =~ m/DOT11-6-DISASSOC/) {
+		my @disassoc = split(/\s+/, $_);
 #		my $highest_session_2 = 0;
-#		my $mac = $disassoc[13];
+		my $mac = $disassoc[13];
 #		my @session_count;
 #		foreach my $session_2 (keys % { $macs{$mac} }) {
 #			if($session_2 > $highest_session_2) {
@@ -62,11 +64,30 @@ while(<SYSLOG>) {
 #			}
 #		}
 #		$macs{$mac}{$highest_session_2}{end_time} = ($disassoc[0].$disassoc[1].$disassoc[2]);
-#	}
-#	#print $_;
+	}
 }
 close(SYSLOG);
 $dbh->disconnect();
+
+
+sub check_existing_session {
+	my $mac = shift;
+	my $last_session_id = shift;
+	my $start_ap = shift;
+	my $start_time = shift;
+	my $dbh = shift;
+
+	my $sth = $dbh->prepare( "SELECT * FROM mac_sessions WHERE mac=? AND session_id=? AND start_ap=? and start_time = ?" );
+	$sth->execute($mac, $last_session_id, $start_ap, $start_time);
+
+	my @check = $sth->fetchrow();
+
+	if(@check) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
 
 sub get_last_session_id {
 	my $mac = shift;
@@ -107,10 +128,12 @@ sub check_database {
 	my $dbh = shift;
 	my $return = 0;
 
-	my $sth = $dbh->prepare( "SELECT * FROM mac_sessions WHERE mac=?" );
-	$sth->execute($mac);
+	my $sth = $dbh->prepare( "SELECT * FROM mac_sessions WHERE mac=? AND start_ap=? AND start_time=?" );
+	$sth->execute($mac, $start_ap, $start_time);
       
-	if(my $rows = $sth->rows()) {
+	my @rows = $sth->fetchrow_array();
+
+	if(@rows) {
 		$return = 1;
 	}
 
